@@ -2,7 +2,7 @@ import { useEffect, useEffectEvent } from 'react'
 import type { MachineSession } from '@/session/MachineSession'
 
 const IGNORED_TARGETS =
-  'input, textarea, select, [role="dialog"], [role="alertdialog"], [role="menu"]'
+  'input, textarea, select, [role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"]'
 
 export function useKeyboardShortcuts(session: MachineSession, stepN: number) {
   const onKeyDown = useEffectEvent((e: KeyboardEvent) => {

@@ -34,11 +34,88 @@
 }
 
 .next {
+  display: flex;
   flex: 1 1 120px;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
 }
 
-.next input {
-  width: 100%;
+.selectLabel {
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-2);
+}
+
+.select {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+  padding: 7px 10px;
+  font-family: var(--mono);
+  font-size: 14px;
+  text-align: left;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.selectValue {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.selectIcon {
+  color: var(--ink-3);
+}
+
+.selectPopup {
+  min-width: var(--anchor-width);
+  padding: 4px;
+}
+
+.selectList {
+  max-height: min(240px, var(--available-height));
+  overflow-y: auto;
+}
+
+.option {
+  display: grid;
+  grid-template-columns: 1.2em 1fr;
+  align-items: center;
+  padding: 6px 10px 6px 4px;
+  font-family: var(--mono);
+  font-size: 13px;
+  white-space: nowrap;
+  border-radius: 2px;
+  outline: none;
+  cursor: default;
+  user-select: none;
+}
+
+.option[data-highlighted] {
+  color: var(--paper-hi);
+  background: var(--ink);
+}
+
+.optionCheck {
+  grid-column: 1;
+  color: var(--accent);
+}
+
+.option[data-highlighted] .optionCheck {
+  color: inherit;
+}
+
+.optionText {
+  grid-column: 2;
 }
 
 .moves {
