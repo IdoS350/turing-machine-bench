@@ -82,6 +82,8 @@
 }
 
 .popover {
+  /* Containing block for the arrow, so it overlaps (and hides) the top border. */
+  position: relative;
   width: min(360px, calc(100vw - 24px));
   padding: 14px;
 }

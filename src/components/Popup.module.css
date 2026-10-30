@@ -22,42 +22,33 @@
   transition: none;
 }
 
+/* Solid ink pointer, like the tape head marker. Needs a positioned popup. */
 .arrow {
   display: block;
-  width: 14px;
-  height: 7px;
-  overflow: clip;
+  width: 18px;
+  height: 10px;
+  background: var(--ink);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+
+/* Bases overlap the 1.5px border; on the bottom/right they start past the 4px hard shadow. */
+.arrow[data-side='bottom'] {
+  top: -10px;
 }
 
 .arrow[data-side='top'] {
-  bottom: -7px;
+  bottom: -15.5px;
   rotate: 180deg;
 }
 
-.arrow[data-side='bottom'] {
-  top: -7px;
-}
-
-.arrow[data-side='left'] {
-  right: -10px;
-  rotate: 90deg;
-}
-
 .arrow[data-side='right'] {
-  left: -10px;
+  left: -14px;
   rotate: -90deg;
 }
 
-.arrow::before {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  width: calc(7px * sqrt(2));
-  height: calc(7px * sqrt(2));
-  background: var(--paper-hi);
-  border: 1.5px solid var(--ink);
-  transform: translate(-50%, 50%) rotate(45deg);
+.arrow[data-side='left'] {
+  right: -19.5px;
+  rotate: 90deg;
 }
 
 @media (prefers-reduced-motion: reduce) {

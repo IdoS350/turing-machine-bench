@@ -130,7 +130,10 @@ export const TransitionTable = memo(function TransitionTable({
       <Popover.Root handle={editor} actionsRef={editorActions}>
         {({ payload }) => (
           <Popover.Portal>
-            <Popover.Positioner sideOffset={8}>
+            {/* Extra room on the shadowed sides, where the arrow sits past the shadow. */}
+            <Popover.Positioner
+              sideOffset={({ side }) => (side === 'top' || side === 'left' ? 18 : 12)}
+            >
               <Popover.Popup className={cx(popup.popup, styles.popover)} initialFocus={writeInput}>
                 <Popover.Arrow className={popup.arrow} />
                 {payload && (
