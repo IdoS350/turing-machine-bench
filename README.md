@@ -97,9 +97,10 @@ src/
 - **The engine is framework-free.** Everything under `src/machine` is plain TypeScript with Vitest coverage, so the simulation logic can be tested and reasoned about on its own.
 - **Playback lives outside React.** `MachineSession` mutates the machine in place (fast at thousands of steps per second) and emits a new immutable snapshot after each action, or at most once per animation frame during playback. Memoized components only re-render when their slice of the snapshot changes.
 - **The text program is the single source of truth.** The transition table reads from it and writes back to it by rewriting the affected line, preserving comments.
+- **[React Compiler](https://react.dev/learn/react-compiler) is on** (via Babel in `vite.config.ts`) with `panicThreshold: 'all_errors'`: if it can't optimize a component, the build fails rather than silently skipping it.
 - **UI primitives come from [Base UI](https://base-ui.com)** (menu, popover, dialog, tooltip, slider, number field, form fields), styled with CSS Modules and the tokens in `src/styles/tokens.css`. Its full docs ship with the package under `node_modules/@base-ui/react/docs`.
 - Imports use the `@/` alias for `src/` (configured in `vite.config.ts` and `tsconfig.app.json`); only co-located CSS modules are imported relatively.
 
 ## Tech stack
 
-React 19 · TypeScript 7 · Vite 8 · Base UI · Vitest · oxlint · Prettier · pnpm
+React 19 + React Compiler · TypeScript 7 · Vite 8 · Base UI · Vitest · oxlint · Prettier · pnpm

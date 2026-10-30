@@ -8,17 +8,12 @@ interface ButtonProps extends Omit<BaseButton.Props, 'className'> {
 }
 
 // Disabled buttons stay focusable so their tooltips and keyboard focus survive state changes.
-export function Button({
-  variant = 'default',
-  className,
-  type = 'button',
-  focusableWhenDisabled = true,
-  ...props
-}: ButtonProps) {
+// Defaults live in the body: React Compiler can't yet compile defaults in destructured props.
+export function Button({ variant, className, type, focusableWhenDisabled, ...props }: ButtonProps) {
   return (
     <BaseButton
-      type={type}
-      focusableWhenDisabled={focusableWhenDisabled}
+      type={type ?? 'button'}
+      focusableWhenDisabled={focusableWhenDisabled ?? true}
       className={cx(styles.button, variant === 'primary' && styles.primary, className)}
       {...props}
     />
