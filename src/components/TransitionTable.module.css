@@ -73,12 +73,17 @@
 }
 
 .cell:hover .none::before,
-.selected .none::before {
+.cell[data-popup-open] .none::before {
   content: '+';
 }
 
-.selected {
+.cell[data-popup-open] {
   box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+.popover {
+  width: min(360px, calc(100vw - 24px));
+  padding: 14px;
 }
 
 .move {
@@ -145,18 +150,15 @@
 
 .add {
   display: flex;
-  flex-wrap: wrap;
-  align-items: end;
-  gap: 6px 8px;
+  align-items: start;
+  gap: 8px;
 }
 
 .add input {
   width: 120px;
 }
 
-.error {
-  flex-basis: 100%;
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--reject);
+/* Lines the button up with the input, below the field label. */
+.addButton {
+  margin-top: 20px;
 }

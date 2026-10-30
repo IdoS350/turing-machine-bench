@@ -6,6 +6,7 @@ import { NextTransition } from './components/NextTransition'
 import { ProgramEditor } from './components/ProgramEditor'
 import { Readout } from './components/Readout'
 import { Tape } from './components/Tape'
+import { TextInput } from './components/TextInput'
 import { Trace } from './components/Trace'
 import { TransitionTable } from './components/TransitionTable'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
@@ -87,15 +88,12 @@ export function App() {
         <section className={styles.bench} aria-label="Machine">
           <div className={styles.benchTop}>
             <Field label="Input" className={styles.input}>
-              <input
-                type="text"
+              <TextInput
                 value={settings.input}
                 placeholder="empty tape"
-                spellCheck={false}
-                autoComplete="off"
-                onChange={(e) => {
-                  update({ input: e.target.value })
-                  session.setInput(e.target.value)
+                onValueChange={(input) => {
+                  update({ input })
+                  session.setInput(input)
                 }}
               />
             </Field>

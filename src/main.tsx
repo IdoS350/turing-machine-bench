@@ -1,3 +1,4 @@
+import { Tooltip } from '@base-ui/react/tooltip'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import '@fontsource/ibm-plex-mono/400.css'
@@ -17,6 +18,8 @@ if (!root) throw new Error('Missing #root element')
 
 createRoot(root).render(
   <StrictMode>
-    <App />
+    <Tooltip.Provider delay={400}>
+      <App />
+    </Tooltip.Provider>
   </StrictMode>,
 )

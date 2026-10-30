@@ -22,21 +22,22 @@
 }
 
 @media (hover: hover) {
-  .button:hover:not(:disabled) {
+  .button:hover:not([data-disabled]),
+  .button[data-popup-open] {
     background: var(--paper-lo);
   }
 
-  .primary:hover:not(:disabled) {
+  .primary:hover:not([data-disabled]) {
     background: var(--accent-dark);
   }
 }
 
-.button:active:not(:disabled) {
+.button:active:not([data-disabled]) {
   transform: translate(2px, 2px);
   box-shadow: 0 0 0 var(--ink);
 }
 
-.button:disabled {
+.button[data-disabled] {
   opacity: 0.35;
   cursor: not-allowed;
   box-shadow: none;

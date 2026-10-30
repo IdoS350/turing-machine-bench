@@ -1,0 +1,68 @@
+/* Shared surface for Base UI popups (popover, menu, dialog). */
+.popup {
+  color: var(--ink);
+  background: var(--paper-hi);
+  border: 1.5px solid var(--ink);
+  border-radius: var(--radius);
+  box-shadow: 4px 4px 0 var(--ink);
+  outline: none;
+  transform-origin: var(--transform-origin);
+  transition:
+    opacity 150ms var(--ease-out),
+    transform 150ms var(--ease-out);
+}
+
+.popup[data-starting-style],
+.popup[data-ending-style] {
+  opacity: 0;
+  transform: scale(0.96);
+}
+
+.popup[data-instant] {
+  transition: none;
+}
+
+.arrow {
+  display: block;
+  width: 14px;
+  height: 7px;
+  overflow: clip;
+}
+
+.arrow[data-side='top'] {
+  bottom: -7px;
+  rotate: 180deg;
+}
+
+.arrow[data-side='bottom'] {
+  top: -7px;
+}
+
+.arrow[data-side='left'] {
+  right: -10px;
+  rotate: 90deg;
+}
+
+.arrow[data-side='right'] {
+  left: -10px;
+  rotate: -90deg;
+}
+
+.arrow::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: calc(7px * sqrt(2));
+  height: calc(7px * sqrt(2));
+  background: var(--paper-hi);
+  border: 1.5px solid var(--ink);
+  transform: translate(-50%, 50%) rotate(45deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .popup[data-starting-style],
+  .popup[data-ending-style] {
+    transform: none;
+  }
+}

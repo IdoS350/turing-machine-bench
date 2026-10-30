@@ -1,4 +1,6 @@
-import { memo, useMemo, useState, type FormEvent } from 'react'
+import { Form } from '@base-ui/react/form'
+import { Popover } from '@base-ui/react/popover'
+import { memo, useMemo, useRef, useState } from 'react'
 import { cx } from '../lib/cx'
 import { moveName } from '../machine/machine'
 import { BLANK, WILD, ruleKey, type Source } from '../machine/model'
@@ -7,10 +9,17 @@ import { deleteRule, setRule, stateError, symbolError } from '../machine/program
 import { Button } from './Button'
 import { Field } from './Field'
 import { Panel } from './Panel'
+import popup from './Popup.module.css'
 import { RuleEditor } from './RuleEditor'
+import { TextInput } from './TextInput'
 import styles from './TransitionTable.module.css'
 
 const unique = (items: Iterable<string>) => [...new Set(items)]
+
+interface Cell {
+  state: string
+  read: string
+}
 
 interface TransitionTableProps {
   source: Source
@@ -34,7 +43,10 @@ export const TransitionTable = memo(function TransitionTable({
   // States and symbols added in the table but not used by any rule yet.
   const [extraStates, setExtraStates] = useState<string[]>([])
   const [extraSymbols, setExtraSymbols] = useState<string[]>([])
-  const [selected, setSelected] = useState<{ state: string; read: string } | null>(null)
+  // One popover shared by every cell; each trigger passes its cell as the payload.
+  const [editor] = useState(() => Popover.createHandle<Cell>())
+  const editorActions = useRef<Popover.Root.Actions>(null)
+  const writeInput = useRef<HTMLInputElement>(null)
 
   const states = unique([...def.states, ...extraStates])
   const allSymbols = [...def.columns, ...extraSymbols]
@@ -43,7 +55,11 @@ export const TransitionTable = memo(function TransitionTable({
     BLANK,
     ...(allSymbols.includes(WILD) ? [WILD] : []),
   ]
-  const selectedKey = selected && ruleKey(selected.state, selected.read)
+
+  const commit = (nextProgram: string) => {
+    onProgramChange(nextProgram)
+    editorActions.current?.close()
+  }
 
   return (
     <Panel title="Transition table" meta="click a cell to edit">
@@ -80,26 +96,17 @@ export const TransitionTable = memo(function TransitionTable({
                   {columns.map((sym) => {
                     const key = ruleKey(state, sym)
                     const rule = def.index.get(key)
-                    const isSelected = key === selectedKey
                     return (
-                      <td
-                        key={sym}
-                        className={cx(
-                          key === nextKey && styles.next,
-                          isSelected && styles.selected,
-                        )}
-                      >
-                        <button
-                          type="button"
+                      <td key={sym} className={cx(key === nextKey && styles.next)}>
+                        <Popover.Trigger
+                          handle={editor}
+                          payload={{ state, read: sym }}
                           className={styles.cell}
-                          aria-pressed={isSelected}
                           aria-label={
                             rule
                               ? `(${state}, ${sym}): write ${rule.write}, move ${moveName(rule.dir)}, go to ${rule.next}`
                               : `(${state}, ${sym}): no rule`
                           }
-                          title={rule ? `line ${rule.line}` : 'Add a rule'}
-                          onClick={() => setSelected(isSelected ? null : { state, read: sym })}
                         >
                           {rule ? (
                             <>
@@ -109,7 +116,7 @@ export const TransitionTable = memo(function TransitionTable({
                           ) : (
                             <span className={styles.none} />
                           )}
-                        </button>
+                        </Popover.Trigger>
                       </td>
                     )
                   })}
@@ -120,25 +127,32 @@ export const TransitionTable = memo(function TransitionTable({
         </div>
       )}
 
-      {selected && (
-        <RuleEditor
-          key={selectedKey}
-          state={selected.state}
-          read={selected.read}
-          rule={def.index.get(ruleKey(selected.state, selected.read))}
-          states={states}
-          symbols={unique([...columns, WILD])}
-          onSave={(fields) => {
-            onProgramChange(setRule(program, selected.state, selected.read, fields))
-            setSelected(null)
-          }}
-          onDelete={() => {
-            onProgramChange(deleteRule(program, selected.state, selected.read))
-            setSelected(null)
-          }}
-          onCancel={() => setSelected(null)}
-        />
-      )}
+      <Popover.Root handle={editor} actionsRef={editorActions}>
+        {({ payload }) => (
+          <Popover.Portal>
+            <Popover.Positioner sideOffset={8}>
+              <Popover.Popup className={cx(popup.popup, styles.popover)} initialFocus={writeInput}>
+                <Popover.Arrow className={popup.arrow} />
+                {payload && (
+                  <RuleEditor
+                    key={ruleKey(payload.state, payload.read)}
+                    state={payload.state}
+                    read={payload.read}
+                    rule={def.index.get(ruleKey(payload.state, payload.read))}
+                    states={states}
+                    symbols={unique([...columns, WILD])}
+                    writeRef={writeInput}
+                    onSave={(fields) =>
+                      commit(setRule(program, payload.state, payload.read, fields))
+                    }
+                    onDelete={() => commit(deleteRule(program, payload.state, payload.read))}
+                  />
+                )}
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        )}
+      </Popover.Root>
 
       <div className={styles.adders}>
         <AddForm
@@ -170,44 +184,24 @@ interface AddFormProps {
 }
 
 function AddForm({ label, placeholder, validate, onAdd }: AddFormProps) {
-  const [value, setValue] = useState('')
-  const [error, setError] = useState<string | null>(null)
-
-  const submit = (e: FormEvent) => {
-    e.preventDefault()
-    const trimmed = value.trim()
-    const problem = validate(trimmed)
-    if (problem) {
-      setError(problem)
-      return
-    }
-    onAdd(trimmed)
-    setValue('')
-    setError(null)
-  }
+  // Bumped after each add to remount the form with a fresh, untouched field.
+  const [round, setRound] = useState(0)
 
   return (
-    <form className={styles.add} onSubmit={submit}>
-      <Field label={label}>
-        <input
-          type="text"
-          value={value}
-          placeholder={placeholder}
-          spellCheck={false}
-          autoComplete="off"
-          aria-invalid={error !== null}
-          onChange={(e) => {
-            setValue(e.target.value)
-            setError(null)
-          }}
-        />
+    <Form
+      key={round}
+      className={styles.add}
+      onFormSubmit={(values) => {
+        onAdd(String(values.value).trim())
+        setRound((r) => r + 1)
+      }}
+    >
+      <Field name="value" label={label} validate={(value) => validate(String(value ?? '').trim())}>
+        <TextInput placeholder={placeholder} autoFocus={round > 0} />
       </Field>
-      <Button type="submit">Add</Button>
-      {error && (
-        <span className={styles.error} role="alert">
-          {error}
-        </span>
-      )}
-    </form>
+      <Button type="submit" className={styles.addButton}>
+        Add
+      </Button>
+    </Form>
   )
 }

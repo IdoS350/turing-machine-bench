@@ -3,6 +3,9 @@
 }
 
 body {
+  /* Lets Base UI backdrops use absolute positioning to cover the visual viewport. */
+  position: relative;
+  min-height: 100dvh;
   margin: 0;
   font-family: var(--sans);
   font-size: 15px;
@@ -35,25 +38,7 @@ kbd {
   outline-offset: 2px;
 }
 
-input[type='text'],
-input[type='number'],
-select {
-  min-width: 0;
-  padding: 7px 10px;
-  font-family: var(--mono);
-  font-size: 14px;
-  color: var(--ink);
-  background: var(--paper);
-  border: 1.5px solid var(--ink);
-  border-radius: var(--radius);
-}
-
-select {
-  cursor: pointer;
-}
-
-input[type='range'] {
-  width: 150px;
-  margin: 8px 0;
-  accent-color: var(--accent);
+/* Keeps Base UI portals stacked above the app regardless of z-index inside it. */
+#root {
+  isolation: isolate;
 }

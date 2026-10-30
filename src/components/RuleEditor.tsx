@@ -1,12 +1,25 @@
-import { useId, useState, type FormEvent } from 'react'
+import { Fieldset } from '@base-ui/react/fieldset'
+import { Form } from '@base-ui/react/form'
+import { Popover } from '@base-ui/react/popover'
+import { Toggle } from '@base-ui/react/toggle'
+import { ToggleGroup } from '@base-ui/react/toggle-group'
+import { useId, useState, type Ref } from 'react'
 import { moveName } from '../machine/machine'
 import { WILD, type MoveName, type Rule } from '../machine/model'
 import { stateError, symbolError, type RuleFields } from '../machine/programEdits'
 import { Button } from './Button'
 import { Field } from './Field'
 import styles from './RuleEditor.module.css'
+import { TextInput } from './TextInput'
 
-const MOVE_OPTIONS: readonly MoveName[] = ['L', 'S', 'R']
+const MOVE_OPTIONS = [
+  { value: 'L', label: 'Left' },
+  { value: 'S', label: 'Stay' },
+  { value: 'R', label: 'Right' },
+] as const satisfies readonly { value: MoveName; label: string }[]
+
+const isMoveName = (value: string | undefined): value is MoveName =>
+  MOVE_OPTIONS.some((option) => option.value === value)
 
 interface RuleEditorProps {
   state: string
@@ -14,9 +27,10 @@ interface RuleEditorProps {
   rule: Rule | undefined
   states: readonly string[]
   symbols: readonly string[]
+  /** Receives the first input so the popover can focus it on open. */
+  writeRef: Ref<HTMLInputElement>
   onSave: (fields: RuleFields) => void
   onDelete: () => void
-  onCancel: () => void
 }
 
 export function RuleEditor({
@@ -25,83 +39,64 @@ export function RuleEditor({
   rule,
   states,
   symbols,
+  writeRef,
   onSave,
   onDelete,
-  onCancel,
 }: RuleEditorProps) {
   const id = useId()
-  const [write, setWrite] = useState(rule?.write ?? read)
   const [move, setMove] = useState<MoveName>(rule ? moveName(rule.dir) : 'R')
-  const [next, setNext] = useState(rule?.next ?? state)
-  const [error, setError] = useState<string | null>(null)
-
-  const submit = (e: FormEvent) => {
-    e.preventDefault()
-    const fields = { write: write.trim(), move, next: next.trim() }
-    const problem =
-      symbolError(fields.write) ?? (fields.next === WILD ? null : stateError(fields.next))
-    if (problem) setError(problem)
-    else onSave(fields)
-  }
 
   return (
-    <form
+    <Form
       className={styles.editor}
-      aria-label={`Rule for (${state}, ${read})`}
-      onSubmit={submit}
-      onKeyDown={(e) => {
-        if (e.key === 'Escape') onCancel()
-      }}
+      onFormSubmit={(values) =>
+        onSave({ write: String(values.write).trim(), move, next: String(values.next).trim() })
+      }
     >
-      <p className={styles.heading}>
+      <Popover.Title className={styles.heading}>
         δ(<b>{state}</b>, <b>{read}</b>)
         <span className={styles.meta}>{rule ? `line ${rule.line}` : 'new rule'}</span>
-      </p>
+      </Popover.Title>
 
       <div className={styles.fields}>
-        <Field label="Write" className={styles.write}>
-          <input
-            type="text"
-            value={write}
-            list={`${id}-symbols`}
-            spellCheck={false}
-            autoComplete="off"
-            autoFocus
-            onChange={(e) => {
-              setWrite(e.target.value)
-              setError(null)
-            }}
-          />
+        <Field
+          name="write"
+          label="Write"
+          className={styles.write}
+          validate={(value) => symbolError(String(value).trim())}
+        >
+          <TextInput ref={writeRef} defaultValue={rule?.write ?? read} list={`${id}-symbols`} />
         </Field>
 
-        <fieldset className={styles.moves}>
-          <legend>Move</legend>
-          {MOVE_OPTIONS.map((option) => (
-            <label key={option}>
-              <input
-                type="radio"
-                name={`${id}-move`}
-                value={option}
-                checked={move === option}
-                onChange={() => setMove(option)}
-              />
-              <span>{option}</span>
-            </label>
+        <Fieldset.Root
+          className={styles.moves}
+          render={
+            <ToggleGroup
+              value={[move]}
+              onValueChange={([value]) => {
+                if (isMoveName(value)) setMove(value)
+              }}
+            />
+          }
+        >
+          <Fieldset.Legend className={styles.movesLegend}>Move</Fieldset.Legend>
+          {MOVE_OPTIONS.map(({ value, label }) => (
+            <Toggle key={value} value={value} aria-label={label} className={styles.move}>
+              {value}
+            </Toggle>
           ))}
-        </fieldset>
+        </Fieldset.Root>
 
-        <Field label="Next state" className={styles.next}>
-          <input
-            type="text"
-            value={next}
-            list={`${id}-states`}
-            spellCheck={false}
-            autoComplete="off"
-            onChange={(e) => {
-              setNext(e.target.value)
-              setError(null)
-            }}
-          />
+        <Field
+          name="next"
+          label="Next state"
+          className={styles.next}
+          validate={(value) => {
+            const next = String(value).trim()
+            return next === WILD ? null : stateError(next)
+          }}
+        >
+          <TextInput defaultValue={rule?.next ?? state} list={`${id}-states`} />
         </Field>
       </div>
 
@@ -116,22 +111,16 @@ export function RuleEditor({
         ))}
       </datalist>
 
-      {error && (
-        <p className={styles.error} role="alert">
-          {error}
-        </p>
-      )}
-
       <div className={styles.actions}>
         <Button type="submit" variant="primary">
           {rule ? 'Update rule' : 'Add rule'}
         </Button>
         {rule && <Button onClick={onDelete}>Delete</Button>}
-        <Button onClick={onCancel}>Cancel</Button>
-        <span className={styles.hint}>
-          <code>*</code> keeps the symbol / state
-        </span>
+        <Popover.Close render={<Button />}>Cancel</Popover.Close>
       </div>
-    </form>
+      <p className={styles.hint}>
+        <code>*</code> keeps the symbol / state
+      </p>
+    </Form>
   )
 }

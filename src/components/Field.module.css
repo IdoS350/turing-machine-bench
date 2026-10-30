@@ -12,3 +12,9 @@
   letter-spacing: 0.08em;
   color: var(--ink-2);
 }
+
+.error {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--reject);
+}

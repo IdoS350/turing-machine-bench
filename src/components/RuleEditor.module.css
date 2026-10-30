@@ -1,19 +1,16 @@
 .editor {
-  margin-top: 12px;
-  padding: 12px;
-  background: var(--paper);
-  border: 1.5px solid var(--ink);
-  border-left: 4px solid var(--accent);
-  border-radius: var(--radius);
+  display: grid;
+  gap: 12px;
 }
 
 .heading {
   display: flex;
   align-items: baseline;
   gap: 10px;
-  margin: 0 0 10px;
+  margin: 0;
   font-family: var(--mono);
   font-size: 15px;
+  font-weight: 400;
 }
 
 .heading b {
@@ -28,30 +25,33 @@
 .fields {
   display: flex;
   flex-wrap: wrap;
-  align-items: end;
+  align-items: start;
   gap: 12px 16px;
 }
 
 .write input {
-  width: 64px;
+  width: 80px;
 }
 
 .next {
-  flex: 1 1 140px;
+  flex: 1 1 120px;
+}
+
+.next input {
+  width: 100%;
 }
 
 .moves {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  row-gap: 4px;
   margin: 0;
   padding: 0;
   border: 0;
 }
 
-.moves legend {
-  float: left;
-  width: 100%;
-  margin-bottom: 4px;
-  padding: 0;
+.movesLegend {
+  grid-column: 1 / -1;
   font-family: var(--mono);
   font-size: 11px;
   text-transform: uppercase;
@@ -59,54 +59,37 @@
   color: var(--ink-2);
 }
 
-.moves label {
-  position: relative;
-}
-
-.moves input {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.moves span {
-  display: block;
+.move {
   padding: 7px 14px;
   font-family: var(--mono);
   font-size: 14px;
   font-weight: 500;
+  color: var(--ink);
   background: var(--paper-hi);
   border: 1.5px solid var(--ink);
   cursor: pointer;
 }
 
-.moves label + label span {
+.move + .move {
   border-left-width: 0;
 }
 
-.moves label:first-of-type span {
+.move:first-of-type {
   border-radius: var(--radius) 0 0 var(--radius);
 }
 
-.moves label:last-of-type span {
+.move:last-of-type {
   border-radius: 0 var(--radius) var(--radius) 0;
 }
 
-.moves input:checked + span {
+.move[data-pressed] {
   color: var(--accent-ink);
   background: var(--accent);
 }
 
-.moves input:focus-visible + span {
-  outline: 2px solid var(--accent);
+.move:focus-visible {
+  position: relative;
   outline-offset: 2px;
-}
-
-.error {
-  margin: 8px 0 0;
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--reject);
 }
 
 .actions {
@@ -114,11 +97,10 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
-  margin-top: 12px;
 }
 
 .hint {
-  margin-left: auto;
+  margin: 0;
   font-size: 12px;
   color: var(--ink-3);
 }

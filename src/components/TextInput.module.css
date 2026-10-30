@@ -1,0 +1,14 @@
+.input {
+  min-width: 0;
+  padding: 7px 10px;
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  border-radius: var(--radius);
+}
+
+.input[data-invalid] {
+  border-color: var(--reject);
+}

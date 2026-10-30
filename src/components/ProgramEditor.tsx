@@ -1,11 +1,15 @@
+import { Collapsible } from '@base-ui/react/collapsible'
 import { memo, type KeyboardEvent } from 'react'
-import { EXAMPLES, isExampleSource, type Example } from '../machine/examples'
+import type { Example } from '../machine/examples'
 import type { ProgramError, Source } from '../machine/model'
 import { Button } from './Button'
 import { CodeEditor } from './CodeEditor'
+import { ExampleMenu } from './ExampleMenu'
 import { Field } from './Field'
+import { Hint } from './Hint'
 import { Panel } from './Panel'
 import styles from './ProgramEditor.module.css'
+import { TextInput } from './TextInput'
 
 interface ProgramEditorProps {
   source: Source
@@ -45,42 +49,15 @@ export const ProgramEditor = memo(function ProgramEditor({
     <Panel
       title="Program"
       className={className}
-      actions={
-        <select
-          value=""
-          aria-label="Load an example"
-          onChange={(e) => {
-            const example = EXAMPLES[Number(e.target.value)]
-            if (!example) return
-            if (
-              isExampleSource(source) ||
-              confirm('Replace your current program with this example?')
-            ) {
-              onExample(example)
-            }
-          }}
-        >
-          <option value="" disabled>
-            Load example…
-          </option>
-          {EXAMPLES.map((ex, i) => (
-            <option key={ex.name} value={i}>
-              {ex.name}
-            </option>
-          ))}
-        </select>
-      }
+      actions={<ExampleMenu source={source} onSelect={onExample} />}
     >
       <div className={styles.config}>
         {STATE_FIELDS.map(({ key, label, placeholder }) => (
           <Field key={key} label={label}>
-            <input
-              type="text"
+            <TextInput
               value={source[key]}
               placeholder={placeholder}
-              spellCheck={false}
-              autoComplete="off"
-              onChange={(e) => onChange({ [key]: e.target.value })}
+              onValueChange={(value) => onChange({ [key]: value })}
               onKeyDown={loadOnEnter}
             />
           </Field>
@@ -114,14 +91,11 @@ export const ProgramEditor = memo(function ProgramEditor({
               ? 'Edited: load to apply (resets the run)'
               : 'Loaded'}
         </span>
-        <Button
-          variant="primary"
-          onClick={load}
-          disabled={errors.length > 0}
-          title="Load machine (⌘/Ctrl+Enter)"
-        >
-          Load machine
-        </Button>
+        <Hint label="Load machine" shortcut="⌘/Ctrl+Enter" keys="Meta+Enter Control+Enter">
+          <Button variant="primary" onClick={load} disabled={errors.length > 0}>
+            Load machine
+          </Button>
+        </Hint>
       </div>
 
       {SYNTAX_HELP}
@@ -130,31 +104,38 @@ export const ProgramEditor = memo(function ProgramEditor({
 })
 
 const SYNTAX_HELP = (
-  <details className={styles.syntax}>
-    <summary>Syntax</summary>
-    <p>
-      One rule per line: <code>state read write move next</code>
-    </p>
-    <ul>
-      <li>
-        <code>_</code> is the blank symbol. Symbols are single characters; spaces in the input
-        become blanks.
-      </li>
-      <li>
-        <code>move</code> is <code>L</code>, <code>R</code>, or <code>S</code> (stay).
-      </li>
-      <li>
-        <code>*</code> as <em>read</em> matches any symbol without a more specific rule; as{' '}
-        <em>write</em> leaves the cell unchanged; as <em>next</em> keeps the current state.
-      </li>
-      <li>
-        Comments start with <code>;</code>. Arrows and commas are ignored, so{' '}
-        <code>q0, 1 -&gt; 0, R, q1</code> works too.
-      </li>
-      <li>
-        The machine halts on entering an accept/reject state, or when no rule applies (an implicit
-        reject when accept states are defined).
-      </li>
-    </ul>
-  </details>
+  <Collapsible.Root className={styles.syntax}>
+    <Collapsible.Trigger className={styles.syntaxTrigger}>
+      <span className={styles.chevron} aria-hidden="true">
+        ▸
+      </span>
+      Syntax
+    </Collapsible.Trigger>
+    <Collapsible.Panel className={styles.syntaxPanel}>
+      <p>
+        One rule per line: <code>state read write move next</code>
+      </p>
+      <ul>
+        <li>
+          <code>_</code> is the blank symbol. Symbols are single characters; spaces in the input
+          become blanks.
+        </li>
+        <li>
+          <code>move</code> is <code>L</code>, <code>R</code>, or <code>S</code> (stay).
+        </li>
+        <li>
+          <code>*</code> as <em>read</em> matches any symbol without a more specific rule; as{' '}
+          <em>write</em> leaves the cell unchanged; as <em>next</em> keeps the current state.
+        </li>
+        <li>
+          Comments start with <code>;</code>. Arrows and commas are ignored, so{' '}
+          <code>q0, 1 -&gt; 0, R, q1</code> works too.
+        </li>
+        <li>
+          The machine halts on entering an accept/reject state, or when no rule applies (an implicit
+          reject when accept states are defined).
+        </li>
+      </ul>
+    </Collapsible.Panel>
+  </Collapsible.Root>
 )

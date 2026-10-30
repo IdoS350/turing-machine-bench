@@ -1,0 +1,62 @@
+.menu {
+  min-width: var(--anchor-width);
+  padding: 4px;
+}
+
+.item {
+  padding: 7px 12px;
+  font-family: var(--mono);
+  font-size: 13px;
+  white-space: nowrap;
+  border-radius: 2px;
+  outline: none;
+  cursor: default;
+  user-select: none;
+}
+
+.item[data-highlighted] {
+  color: var(--paper-hi);
+  background: var(--ink);
+}
+
+.backdrop {
+  /* Absolute (with a relative body) so the backdrop covers iOS Safari's visual viewport. */
+  position: absolute;
+  inset: 0;
+  background: rgb(28 25 21 / 0.35);
+  transition: opacity 150ms var(--ease-out);
+}
+
+.backdrop[data-starting-style],
+.backdrop[data-ending-style] {
+  opacity: 0;
+}
+
+.dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: min(420px, calc(100vw - 32px));
+  padding: 20px;
+  translate: -50% -50%;
+}
+
+.title {
+  margin: 0 0 8px;
+  font-family: var(--serif);
+  font-size: 26px;
+  font-weight: 400;
+  line-height: 1.1;
+}
+
+.description {
+  margin: 0;
+  color: var(--ink-2);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 20px;
+}
