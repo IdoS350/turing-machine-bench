@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Turing Machine Bench</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="masthead">
+    <h1>Turing <em>Machine</em> Bench</h1>
+    <p class="tagline">Define a transition function. Step through it. Watch the tape.</p>
+  </header>
+
+  <main>
+    <section class="bench" aria-label="Machine">
+      <div class="bench-top">
+        <label class="field field-input">
+          <span>Input</span>
+          <input id="input" type="text" spellcheck="false" autocomplete="off" placeholder="empty tape">
+        </label>
+        <dl class="readout">
+          <div><dt>State</dt><dd id="ro-state" class="accent">—</dd></div>
+          <div><dt>Step</dt><dd id="ro-step">0</dd></div>
+          <div><dt>Head</dt><dd id="ro-head">0</dd></div>
+          <div><dt>Reading</dt><dd id="ro-read">_</dd></div>
+        </dl>
+      </div>
+
+      <div class="tape" id="tape">
+        <div class="head" aria-hidden="true"><span id="head-state">—</span></div>
+        <div class="tape-strip" id="strip"></div>
+      </div>
+
+      <div class="next" id="next" aria-live="polite"></div>
+
+      <div class="controls">
+        <button type="button" class="btn" id="btn-reset" title="Reset (R)">Reset</button>
+        <div class="group" role="group" aria-label="Step controls">
+          <button type="button" class="btn" id="btn-back-n" title="Back N steps (Shift+←)">−10</button>
+          <button type="button" class="btn" id="btn-prev" title="Previous step (←)">◀ Prev</button>
+          <button type="button" class="btn primary" id="btn-play" title="Play / pause (Space)">Play</button>
+          <button type="button" class="btn" id="btn-next" title="Next step (→)">Next ▶</button>
+          <button type="button" class="btn" id="btn-fwd-n" title="Forward N steps (Shift+→)">+10</button>
+        </div>
+        <label class="field field-n">
+          <span>N</span>
+          <input id="step-n" type="number" min="1" max="1000000" value="10">
+        </label>
+        <label class="field field-speed">
+          <span>Speed <output id="speed-out"></output></span>
+          <input id="speed" type="range" min="0" max="9" step="1">
+        </label>
+        <button type="button" class="btn" id="btn-run" title="Run until the machine halts">Run to halt</button>
+      </div>
+      <p class="hint">
+        <kbd>←</kbd> <kbd>→</kbd> step · <kbd>Shift</kbd>+<kbd>←</kbd> <kbd>→</kbd> step by N ·
+        <kbd>Space</kbd> play/pause · <kbd>R</kbd> reset
+      </p>
+    </section>
+
+    <section class="panel program" aria-label="Program">
+      <header class="panel-head">
+        <h2>Program</h2>
+        <select id="examples" aria-label="Load an example"></select>
+      </header>
+
+      <div class="config">
+        <label class="field"><span>Start state</span><input id="start" type="text" spellcheck="false" autocomplete="off"></label>
+        <label class="field"><span>Accept states</span><input id="accept" type="text" spellcheck="false" autocomplete="off" placeholder="e.g. done, yes"></label>
+        <label class="field"><span>Reject states</span><input id="reject" type="text" spellcheck="false" autocomplete="off" placeholder="optional"></label>
+      </div>
+
+      <div class="editor">
+        <div class="gutter" id="gutter" aria-hidden="true"></div>
+        <textarea id="program" spellcheck="false" autocomplete="off" autocapitalize="off" wrap="off" aria-label="Transition rules"></textarea>
+      </div>
+      <ul class="errors" id="errors"></ul>
+
+      <div class="program-foot">
+        <span class="status" id="dirty"></span>
+        <button type="button" class="btn primary" id="btn-load" title="Load machine (⌘/Ctrl+Enter)">Load machine</button>
+      </div>
+
+      <details class="syntax">
+        <summary>Syntax</summary>
+        <p>One rule per line: <code>state read write move next</code></p>
+        <ul>
+          <li><code>_</code> is the blank symbol. Symbols are single characters; spaces in the input become blanks.</li>
+          <li><code>move</code> is <code>L</code>, <code>R</code>, or <code>S</code> (stay).</li>
+          <li><code>*</code> as <em>read</em> matches any symbol without a more specific rule; as <em>write</em> leaves the cell unchanged; as <em>next</em> keeps the current state.</li>
+          <li>Comments start with <code>;</code>. Arrows and commas are ignored, so <code>q0, 1 -&gt; 0, R, q1</code> works too.</li>
+          <li>The machine halts on entering an accept/reject state, or when no rule applies (an implicit reject when accept states are defined).</li>
+        </ul>
+      </details>
+    </section>
+
+    <section class="panel" aria-label="Transition table">
+      <header class="panel-head">
+        <h2>Transition table</h2>
+        <span class="meta" id="table-meta"></span>
+      </header>
+      <div class="table-wrap" id="table"></div>
+    </section>
+
+    <section class="panel" aria-label="Trace">
+      <header class="panel-head">
+        <h2>Trace</h2>
+        <span class="meta">click a step to rewind to it</span>
+      </header>
+      <ol class="trace" id="trace"></ol>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
