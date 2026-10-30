@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { compile, parseProgram } from './parser'
+import { compile, draftDef, parseProgram } from './parser'
 
 const source = (program: string, start = 'q0') => ({ start, accept: '', reject: '', program })
 
@@ -54,5 +54,14 @@ describe('compile', () => {
 
     expect(result.def.columns).toEqual(['a', 'b', '_', '*'])
     expect(result.def.states).toEqual(['q0', 'q1'])
+  })
+})
+
+describe('draftDef', () => {
+  it('keeps the rules that parse even when other lines have errors', () => {
+    const def = draftDef(source('q0 1 1 R q1\nbroken line\nq1 1 0 X q0', ''))
+
+    expect(def.rules.map((r) => r.line)).toEqual([1])
+    expect(def.states).toEqual(['q0', 'q1'])
   })
 })

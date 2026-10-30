@@ -4,6 +4,7 @@ import {
   ruleKey,
   type CompileResult,
   type Direction,
+  type MachineDef,
   type ProgramError,
   type Rule,
   type Source,
@@ -79,6 +80,17 @@ export function compile(source: Source): CompileResult {
     errors.unshift({ line: 0, message: 'start state cannot contain spaces' })
   if (errors.length) return { ok: false, errors }
 
+  return { ok: true, def: toDef(rules, index, source) }
+}
+
+/** Best-effort definition of a draft: keeps every rule that parsed, even if other lines have errors. */
+export function draftDef(source: Source): MachineDef {
+  const { rules, index } = parseProgram(source.program)
+  return toDef(rules, index, source)
+}
+
+function toDef(rules: Rule[], index: Map<string, Rule>, source: Source): MachineDef {
+  const start = source.start.trim()
   const accept = new Set(splitStates(source.accept))
   const reject = new Set(splitStates(source.reject))
   const states = unique([
@@ -87,11 +99,11 @@ export function compile(source: Source): CompileResult {
     ...rules.map((r) => r.next).filter((s) => s !== WILD),
     ...accept,
     ...reject,
-  ])
+  ]).filter(Boolean)
   const symbols = unique([...rules.map((r) => r.read), ...rules.map((r) => r.write)]).filter(
     (s) => s !== WILD && s !== BLANK,
   )
   const columns = [...symbols, BLANK, ...(rules.some((r) => r.read === WILD) ? [WILD] : [])]
 
-  return { ok: true, def: { rules, index, start, accept, reject, states, columns } }
+  return { rules, index, start, accept, reject, states, columns }
 }

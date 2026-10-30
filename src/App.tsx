@@ -30,6 +30,7 @@ export function App() {
   useKeyboardShortcuts(session, settings.stepN)
 
   const { machine } = snapshot
+  const dirty = sourceKey(settings) !== loadedKey
   const update = (patch: Partial<Settings>) => setSettings((s) => ({ ...s, ...patch }))
 
   const apply = (next: Settings) => {
@@ -107,12 +108,16 @@ export function App() {
           className={styles.program}
           source={settings}
           errors={compiled.ok ? [] : compiled.errors}
-          dirty={sourceKey(settings) !== loadedKey}
+          dirty={dirty}
           onChange={update}
           onLoad={() => apply(settings)}
           onExample={loadExample}
         />
-        <TransitionTable machine={machine} />
+        <TransitionTable
+          source={settings}
+          machine={dirty ? null : machine}
+          onProgramChange={(program) => update({ program })}
+        />
         <Trace machine={machine} onJump={session.jumpTo} />
       </main>
     </>
