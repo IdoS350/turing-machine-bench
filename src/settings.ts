@@ -24,6 +24,15 @@ const DEFAULTS: Settings = {
   stepN: 10,
 }
 
+export const EMPTY_SETTINGS: Settings = {
+  ...DEFAULTS,
+  start: '',
+  accept: '',
+  reject: '',
+  program: '',
+  input: '',
+}
+
 function loadSettings(): Settings {
   try {
     const stored: unknown = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? 'null')

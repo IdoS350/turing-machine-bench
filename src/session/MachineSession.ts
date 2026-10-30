@@ -123,6 +123,14 @@ export class MachineSession {
     this.#emit(null)
   }
 
+  clear = () => {
+    this.#stop()
+    this.#notice = ''
+    this.#input = ''
+    this.#machine = null
+    this.#emit(null)
+  }
+
   setInput = (input: string) => {
     this.#input = input
     this.reset()

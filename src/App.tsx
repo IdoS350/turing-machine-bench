@@ -1,5 +1,7 @@
+import { AlertDialog } from '@base-ui/react/alert-dialog'
 import { useCallback, useMemo, useState } from 'react'
 import styles from './App.module.css'
+import { Button } from '@/components/Button/Button'
 import { Controls } from '@/components/Controls/Controls'
 import { Field } from '@/components/Field/Field'
 import { NextTransition } from '@/components/NextTransition/NextTransition'
@@ -10,12 +12,14 @@ import { TextInput } from '@/components/TextInput/TextInput'
 import { Trace } from '@/components/Trace/Trace'
 import { TransitionTable } from '@/components/TransitionTable/TransitionTable'
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
+import { cx } from '@/lib/cx'
 import type { Example } from '@/machine/examples'
 import { ruleKey, sourceKey, type ProgramError, type Source } from '@/machine/model'
 import { compile } from '@/machine/parser'
-import { MachineSession, SPEEDS } from '@/session/MachineSession'
+import { SPEEDS } from '@/session/MachineSession'
 import { useMachineSession } from '@/session/useMachineSession'
-import { usePersistentSettings, type Settings } from '@/settings'
+import popup from '@/styles/popup.module.css'
+import { EMPTY_SETTINGS, usePersistentSettings, type Settings } from '@/settings'
 
 const NO_ERRORS: readonly ProgramError[] = []
 
@@ -36,9 +40,11 @@ export function App() {
   const compiled = useMemo(() => compile(source), [source])
   const currentKey = useMemo(() => sourceKey(source), [source])
   const [loadedKey, setLoadedKey] = useState(() => (compiled.ok ? currentKey : null))
+  const [resetRevision, setResetRevision] = useState(0)
   const [session, snapshot] = useMachineSession(
-    () =>
-      new MachineSession(compiled.ok ? compiled.def : null, settings.input, SPEEDS[settings.speed]),
+    compiled.ok ? compiled.def : null,
+    settings.input,
+    SPEEDS[settings.speed],
   )
   useKeyboardShortcuts(session, settings.stepN)
 
@@ -73,6 +79,14 @@ export function App() {
 
   const changeProgram = useCallback((program: string) => update({ program }), [update])
 
+  const resetAll = useCallback(() => {
+    setSettings({ ...EMPTY_SETTINGS })
+    setLoadedKey(null)
+    session.clear()
+    session.setRate(SPEEDS[EMPTY_SETTINGS.speed])
+    setResetRevision((revision) => revision + 1)
+  }, [session, setSettings])
+
   return (
     <>
       <header className={styles.masthead}>
@@ -103,7 +117,16 @@ export function App() {
           <Tape machine={machine} motion={snapshot.motion} />
           <NextTransition machine={machine} notice={snapshot.notice} />
           <Controls
-            session={session}
+            key={resetRevision}
+            actions={{
+              reset: session.reset,
+              back: session.back,
+              prev: session.prev,
+              togglePlay: session.togglePlay,
+              next: session.next,
+              forward: session.forward,
+              runToHalt: session.runToHalt,
+            }}
             snapshot={snapshot}
             stepN={settings.stepN}
             speed={settings.speed}
@@ -113,7 +136,32 @@ export function App() {
               session.setRate(SPEEDS[speed])
             }}
           />
-          {SHORTCUT_HINT}
+          <div className={styles.benchFooter}>
+            {SHORTCUT_HINT}
+            <div className={styles.benchReset}>
+              <AlertDialog.Root>
+                <AlertDialog.Trigger render={<Button />}>Reset all</AlertDialog.Trigger>
+                <AlertDialog.Portal>
+                  <AlertDialog.Backdrop className={styles.resetBackdrop} />
+                  <AlertDialog.Popup className={cx(popup.popup, styles.resetDialog)}>
+                    <AlertDialog.Title className={styles.resetTitle}>
+                      Reset the whole machine?
+                    </AlertDialog.Title>
+                    <AlertDialog.Description className={styles.resetDescription}>
+                      This clears the program, input, transition table additions, and current run.
+                      Speed and step size return to their defaults.
+                    </AlertDialog.Description>
+                    <div className={styles.resetActions}>
+                      <AlertDialog.Close render={<Button />}>Cancel</AlertDialog.Close>
+                      <AlertDialog.Close render={<Button variant="primary" />} onClick={resetAll}>
+                        Reset all
+                      </AlertDialog.Close>
+                    </div>
+                  </AlertDialog.Popup>
+                </AlertDialog.Portal>
+              </AlertDialog.Root>
+            </div>
+          </div>
         </section>
 
         <ProgramEditor
@@ -125,13 +173,16 @@ export function App() {
           onLoad={loadSource}
           onExample={loadExample}
         />
-        <TransitionTable
-          source={source}
-          currentState={highlight?.state ?? null}
-          nextKey={nextRule ? ruleKey(nextRule.state, nextRule.read) : null}
-          onProgramChange={changeProgram}
-        />
-        <Trace machine={machine} onJump={session.jumpTo} />
+        <div className={styles.analysis}>
+          <TransitionTable
+            key={resetRevision}
+            source={source}
+            currentState={highlight?.state ?? null}
+            nextKey={nextRule ? ruleKey(nextRule.state, nextRule.read) : null}
+            onProgramChange={changeProgram}
+          />
+          <Trace machine={machine} onJump={session.jumpTo} />
+        </div>
       </main>
     </>
   )
