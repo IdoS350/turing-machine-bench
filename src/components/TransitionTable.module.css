@@ -1,0 +1,94 @@
+.wrap {
+  max-height: 360px;
+  overflow: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--mono);
+  font-size: 13px;
+}
+
+.table th,
+.table td {
+  padding: 6px 10px;
+  text-align: left;
+  white-space: nowrap;
+  border: 1px solid var(--line);
+}
+
+.table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--paper-hi);
+  border-bottom: 1.5px solid var(--ink);
+}
+
+.table thead th:first-child {
+  font-weight: 400;
+  color: var(--ink-3);
+}
+
+.table tbody th {
+  font-weight: 600;
+}
+
+.table .none {
+  text-align: center;
+  color: var(--ink-3);
+}
+
+.move {
+  color: var(--ink-3);
+}
+
+.target {
+  font-weight: 500;
+}
+
+.current th {
+  background: var(--marker);
+}
+
+.next {
+  color: var(--accent-ink);
+  background: var(--accent);
+}
+
+.next .move {
+  color: inherit;
+  opacity: 0.75;
+}
+
+.tag {
+  margin-left: 6px;
+  padding: 1px 5px;
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  vertical-align: 2px;
+  color: #fff;
+  border-radius: 3px;
+}
+
+.start {
+  background: var(--ink);
+}
+
+.accept {
+  background: var(--accept);
+}
+
+.reject {
+  background: var(--reject);
+}
+
+.empty {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--ink-3);
+}

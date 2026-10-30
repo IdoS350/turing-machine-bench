@@ -1,0 +1,30 @@
+:root {
+  --paper: #f1eadb;
+  --paper-hi: #fbf7ee;
+  --paper-lo: #e6dcc7;
+  --ink: #1c1915;
+  --ink-2: #5d554a;
+  --ink-3: #8f8574;
+  --line: #d6cab2;
+  --accent: #d2461f;
+  --accent-dark: #b23a17;
+  --accent-ink: #fff6ef;
+  --accept: #2e7a4d;
+  --reject: #b3261e;
+  --marker: #f5d76e;
+
+  --cell: 56px;
+  --radius: 4px;
+
+  --mono: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
+  --sans: 'IBM Plex Sans', system-ui, sans-serif;
+  --serif: 'Instrument Serif', Georgia, serif;
+
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@media (max-width: 600px) {
+  :root {
+    --cell: 44px;
+  }
+}

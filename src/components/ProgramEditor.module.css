@@ -1,0 +1,80 @@
+.config {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+@media (max-width: 520px) {
+  .config {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.errors {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--reject);
+}
+
+.errors li + li {
+  margin-top: 2px;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.status {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.status[data-status='dirty'] {
+  color: var(--accent-dark);
+}
+
+.status[data-status='error'] {
+  color: var(--reject);
+}
+
+.status[data-status='ok']::before {
+  content: '● ';
+  color: var(--accept);
+}
+
+.syntax {
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.syntax summary {
+  font-family: var(--mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+
+.syntax ul {
+  padding-left: 18px;
+}
+
+.syntax li + li {
+  margin-top: 4px;
+}
+
+.syntax code {
+  padding: 0 4px;
+  background: var(--paper-lo);
+  border-radius: 3px;
+}

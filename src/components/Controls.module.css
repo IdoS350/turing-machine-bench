@@ -1,0 +1,22 @@
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 12px 16px;
+}
+
+.group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.stepN input {
+  width: 90px;
+}
+
+.speed {
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--ink);
+}

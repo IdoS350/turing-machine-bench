@@ -1,0 +1,50 @@
+.trace {
+  max-height: 320px;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  list-style: none;
+  font-family: var(--mono);
+  font-size: 13px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 8ch minmax(0, 1fr) auto;
+  gap: 12px;
+  width: 100%;
+  padding: 5px 8px;
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  background: none;
+  border: 0;
+  border-bottom: 1px dashed var(--line);
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .row:hover {
+    background: var(--paper-lo);
+  }
+}
+
+.current {
+  background: var(--marker);
+}
+
+.step {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-3);
+}
+
+.line {
+  font-size: 11px;
+  color: var(--ink-3);
+}
+
+.more {
+  padding: 5px 8px;
+  color: var(--ink-3);
+  border-bottom: 1px dashed var(--line);
+}
