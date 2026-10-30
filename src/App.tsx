@@ -8,6 +8,7 @@ import { NextTransition } from '@/components/NextTransition/NextTransition'
 import { ProgramEditor } from '@/components/ProgramEditor/ProgramEditor'
 import { Readout } from '@/components/Readout/Readout'
 import { Tape } from '@/components/Tape/Tape'
+import { TuringMachineDiagram } from '@/components/TuringMachineDiagram/TuringMachineDiagram'
 import { TextInput } from '@/components/TextInput/TextInput'
 import { Trace } from '@/components/Trace/Trace'
 import { TransitionTable } from '@/components/TransitionTable/TransitionTable'
@@ -184,6 +185,17 @@ export function App() {
           <Trace machine={machine} onJump={session.jumpTo} />
         </div>
       </main>
+      <section className={styles.diagramSection} aria-labelledby="machine-anatomy-title">
+        <h2 className={styles.diagramTitle} id="machine-anatomy-title">
+          Machine anatomy
+        </h2>
+        <p className={styles.diagramIntro}>
+          A Turing machine stores symbols on an unbounded tape. At each step, its current state and
+          scanned symbol select a rule: (q0, 1) → (q1, 0, R) means write 0, move right, and switch
+          to q1. It stops when it reaches an accept/reject state or has no matching rule.
+        </p>
+        <TuringMachineDiagram />
+      </section>
     </>
   )
 }
