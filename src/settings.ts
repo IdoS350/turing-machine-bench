@@ -24,8 +24,6 @@ const DEFAULTS: Settings = {
   stepN: 10,
 }
 
-export const sourceKey = (s: Source) => JSON.stringify([s.start, s.accept, s.reject, s.program])
-
 function loadSettings(): Settings {
   try {
     const stored: unknown = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? 'null')

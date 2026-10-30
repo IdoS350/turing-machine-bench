@@ -8,6 +8,11 @@
   font-size: 13px;
 }
 
+.item {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 30px;
+}
+
 .row {
   display: grid;
   grid-template-columns: 8ch minmax(0, 1fr) auto;

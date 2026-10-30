@@ -1,4 +1,4 @@
-import type { Source } from './model'
+import { sourceKey, type Source } from './model'
 
 export interface Example extends Source {
   name: string
@@ -110,3 +110,8 @@ C _ 1 L C
 C 1 1 L A`,
   },
 ]
+
+export const isExampleSource = (source: Source) => {
+  const key = sourceKey(source)
+  return EXAMPLES.some((ex) => sourceKey(ex) === key)
+}

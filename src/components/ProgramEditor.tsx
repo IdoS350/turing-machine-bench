@@ -1,5 +1,5 @@
-import type { KeyboardEvent } from 'react'
-import { EXAMPLES, type Example } from '../machine/examples'
+import { memo, type KeyboardEvent } from 'react'
+import { EXAMPLES, isExampleSource, type Example } from '../machine/examples'
 import type { ProgramError, Source } from '../machine/model'
 import { Button } from './Button'
 import { CodeEditor } from './CodeEditor'
@@ -13,7 +13,7 @@ interface ProgramEditorProps {
   dirty: boolean
   className?: string
   onChange: (patch: Partial<Source>) => void
-  onLoad: () => void
+  onLoad: (source: Source) => void
   onExample: (example: Example) => void
 }
 
@@ -23,7 +23,7 @@ const STATE_FIELDS = [
   { key: 'reject', label: 'Reject states', placeholder: 'optional' },
 ] as const
 
-export function ProgramEditor({
+export const ProgramEditor = memo(function ProgramEditor({
   source,
   errors,
   dirty,
@@ -33,10 +33,11 @@ export function ProgramEditor({
   onExample,
 }: ProgramEditorProps) {
   const status = errors.length ? 'error' : dirty ? 'dirty' : 'ok'
+  const load = () => onLoad(source)
   const loadOnEnter = (e: KeyboardEvent) => {
     if (e.key === 'Enter') {
       e.preventDefault()
-      onLoad()
+      load()
     }
   }
 
@@ -50,7 +51,13 @@ export function ProgramEditor({
           aria-label="Load an example"
           onChange={(e) => {
             const example = EXAMPLES[Number(e.target.value)]
-            if (example) onExample(example)
+            if (!example) return
+            if (
+              isExampleSource(source) ||
+              confirm('Replace your current program with this example?')
+            ) {
+              onExample(example)
+            }
           }}
         >
           <option value="" disabled>
@@ -85,7 +92,7 @@ export function ProgramEditor({
         label="Transition rules"
         errorLines={new Set(errors.map((e) => e.line))}
         onChange={(program) => onChange({ program })}
-        onSubmit={onLoad}
+        onSubmit={load}
       />
 
       {errors.length > 0 && (
@@ -109,7 +116,7 @@ export function ProgramEditor({
         </span>
         <Button
           variant="primary"
-          onClick={onLoad}
+          onClick={load}
           disabled={errors.length > 0}
           title="Load machine (⌘/Ctrl+Enter)"
         >
@@ -117,33 +124,37 @@ export function ProgramEditor({
         </Button>
       </div>
 
-      <details className={styles.syntax}>
-        <summary>Syntax</summary>
-        <p>
-          One rule per line: <code>state read write move next</code>
-        </p>
-        <ul>
-          <li>
-            <code>_</code> is the blank symbol. Symbols are single characters; spaces in the input
-            become blanks.
-          </li>
-          <li>
-            <code>move</code> is <code>L</code>, <code>R</code>, or <code>S</code> (stay).
-          </li>
-          <li>
-            <code>*</code> as <em>read</em> matches any symbol without a more specific rule; as{' '}
-            <em>write</em> leaves the cell unchanged; as <em>next</em> keeps the current state.
-          </li>
-          <li>
-            Comments start with <code>;</code>. Arrows and commas are ignored, so{' '}
-            <code>q0, 1 -&gt; 0, R, q1</code> works too.
-          </li>
-          <li>
-            The machine halts on entering an accept/reject state, or when no rule applies (an
-            implicit reject when accept states are defined).
-          </li>
-        </ul>
-      </details>
+      {SYNTAX_HELP}
     </Panel>
   )
-}
+})
+
+const SYNTAX_HELP = (
+  <details className={styles.syntax}>
+    <summary>Syntax</summary>
+    <p>
+      One rule per line: <code>state read write move next</code>
+    </p>
+    <ul>
+      <li>
+        <code>_</code> is the blank symbol. Symbols are single characters; spaces in the input
+        become blanks.
+      </li>
+      <li>
+        <code>move</code> is <code>L</code>, <code>R</code>, or <code>S</code> (stay).
+      </li>
+      <li>
+        <code>*</code> as <em>read</em> matches any symbol without a more specific rule; as{' '}
+        <em>write</em> leaves the cell unchanged; as <em>next</em> keeps the current state.
+      </li>
+      <li>
+        Comments start with <code>;</code>. Arrows and commas are ignored, so{' '}
+        <code>q0, 1 -&gt; 0, R, q1</code> works too.
+      </li>
+      <li>
+        The machine halts on entering an accept/reject state, or when no rule applies (an implicit
+        reject when accept states are defined).
+      </li>
+    </ul>
+  </details>
+)

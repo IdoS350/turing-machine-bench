@@ -1,10 +1,9 @@
-import { useMemo, useState, type FormEvent } from 'react'
+import { memo, useMemo, useState, type FormEvent } from 'react'
 import { cx } from '../lib/cx'
 import { moveName } from '../machine/machine'
 import { BLANK, WILD, ruleKey, type Source } from '../machine/model'
 import { draftDef } from '../machine/parser'
 import { deleteRule, setRule, stateError, symbolError } from '../machine/programEdits'
-import type { MachineView } from '../session/MachineSession'
 import { Button } from './Button'
 import { Field } from './Field'
 import { Panel } from './Panel'
@@ -15,12 +14,18 @@ const unique = (items: Iterable<string>) => [...new Set(items)]
 
 interface TransitionTableProps {
   source: Source
-  /** Running machine to highlight, or null when the table shows unloaded edits. */
-  machine: MachineView | null
+  /** Highlights for the running machine; null when the table shows unloaded edits. */
+  currentState: string | null
+  nextKey: string | null
   onProgramChange: (program: string) => void
 }
 
-export function TransitionTable({ source, machine, onProgramChange }: TransitionTableProps) {
+export const TransitionTable = memo(function TransitionTable({
+  source,
+  currentState,
+  nextKey,
+  onProgramChange,
+}: TransitionTableProps) {
   const { start, accept, reject, program } = source
   const def = useMemo(
     () => draftDef({ start, accept, reject, program }),
@@ -38,8 +43,6 @@ export function TransitionTable({ source, machine, onProgramChange }: Transition
     BLANK,
     ...(allSymbols.includes(WILD) ? [WILD] : []),
   ]
-  const next = machine?.next
-  const nextKey = next && ruleKey(next.rule.state, next.rule.read)
   const selectedKey = selected && ruleKey(selected.state, selected.read)
 
   return (
@@ -61,7 +64,7 @@ export function TransitionTable({ source, machine, onProgramChange }: Transition
             </thead>
             <tbody>
               {states.map((state) => (
-                <tr key={state} className={cx(state === machine?.state && styles.current)}>
+                <tr key={state} className={cx(state === currentState && styles.current)}>
                   <th scope="row">
                     {state}
                     {state === def.start && (
@@ -157,7 +160,7 @@ export function TransitionTable({ source, machine, onProgramChange }: Transition
       </div>
     </Panel>
   )
-}
+})
 
 interface AddFormProps {
   label: string

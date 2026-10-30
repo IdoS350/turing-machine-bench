@@ -55,12 +55,12 @@ export function step(m: Machine): boolean {
   const sym = readCell(m)
   const rule = findRule(m.def, m.state, sym)
   if (!rule) return false
-  const { write, next } = transitionOf(rule, m.state, sym)
-  m.history.push({ head: m.head, state: m.state, sym: m.tape.get(m.head), rule })
-  if (write === BLANK) m.tape.delete(m.head)
-  else m.tape.set(m.head, write)
+  const transition = transitionOf(rule, m.state, sym)
+  m.history.push({ head: m.head, sym: m.tape.get(m.head), transition })
+  if (transition.write === BLANK) m.tape.delete(m.head)
+  else m.tape.set(m.head, transition.write)
   m.head += rule.dir
-  m.state = next
+  m.state = transition.next
   return true
 }
 
@@ -68,7 +68,7 @@ export function undo(m: Machine): boolean {
   const entry = m.history.pop()
   if (!entry) return false
   m.head = entry.head
-  m.state = entry.state
+  m.state = entry.transition.state
   if (entry.sym === undefined) m.tape.delete(entry.head)
   else m.tape.set(entry.head, entry.sym)
   return true

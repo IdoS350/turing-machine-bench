@@ -10,11 +10,13 @@ import {
   undo,
 } from '../machine/machine'
 import { formatCount } from '../lib/format'
-import { BLANK, type Halt, type Machine, type MachineDef, type Transition } from '../machine/model'
+import type { Halt, Machine, MachineDef, Transition } from '../machine/model'
 
 /** Playback rates in steps per second, selected by index. */
 export const SPEEDS = [1, 2, 4, 8, 15, 30, 60, 250, 1000, 5000] as const
 export const RUN_LIMIT = 100_000
+/** Cells exposed on each side of the head; enough for very wide screens. */
+export const TAPE_WINDOW = 80
 const TRACE_LIMIT = 200
 const MAX_STEPS_PER_FRAME = 5000
 const STEP_ANIMATION_MS = 220
@@ -28,8 +30,11 @@ export interface Motion {
   duration: number
 }
 
-export interface TraceEntry extends Transition {
-  step: number
+export interface TapeWindow {
+  /** Tape index of `cells[0]`. */
+  from: number
+  /** `undefined` means blank. */
+  cells: readonly (string | undefined)[]
 }
 
 export interface MachineView {
@@ -38,11 +43,11 @@ export interface MachineView {
   head: number
   step: number
   reading: string
-  cells: ReadonlyMap<number, string>
+  tape: TapeWindow
   halt: Halt | null
   next: Transition | null
   /** Most recent first, capped at TRACE_LIMIT entries. */
-  trace: readonly TraceEntry[]
+  trace: readonly Transition[]
   hiddenTraceCount: number
 }
 
@@ -58,10 +63,7 @@ function viewOf(m: Machine): MachineView {
   const reading = readCell(m)
   const rule = halt ? undefined : findRule(m.def, m.state, reading)
   const first = Math.max(0, m.history.length - TRACE_LIMIT)
-  const trace = m.history
-    .slice(first)
-    .map((e, i) => ({ step: first + i + 1, ...transitionOf(e.rule, e.state, e.sym ?? BLANK) }))
-    .reverse()
+  const from = m.head - TAPE_WINDOW
 
   return {
     def: m.def,
@@ -69,10 +71,16 @@ function viewOf(m: Machine): MachineView {
     head: m.head,
     step: m.history.length,
     reading,
-    cells: new Map(m.tape),
+    tape: {
+      from,
+      cells: Array.from({ length: 2 * TAPE_WINDOW + 1 }, (_, i) => m.tape.get(from + i)),
+    },
     halt,
     next: rule ? transitionOf(rule, m.state, reading) : null,
-    trace,
+    trace: m.history
+      .slice(first)
+      .map((e) => e.transition)
+      .reverse(),
     hiddenTraceCount: first,
   }
 }
@@ -107,7 +115,7 @@ export class MachineSession {
 
   getSnapshot = () => this.#snapshot
 
-  load = (def: MachineDef, input: string) => {
+  load = (def: MachineDef, input = this.#input) => {
     this.#stop()
     this.#notice = ''
     this.#input = input

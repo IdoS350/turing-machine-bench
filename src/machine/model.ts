@@ -42,10 +42,10 @@ export type CompileResult = { ok: true; def: MachineDef } | { ok: false; errors:
 
 export interface HistoryEntry {
   head: number
-  state: string
   /** Cell content before the step; `undefined` means blank. */
   sym: string | undefined
-  rule: Rule
+  /** Never mutated, so UI can memoize on its identity. */
+  transition: Transition
 }
 
 export interface Machine {
@@ -74,3 +74,5 @@ export interface Transition {
 }
 
 export const ruleKey = (state: string, sym: string) => `${state} ${sym}`
+
+export const sourceKey = (s: Source) => JSON.stringify([s.start, s.accept, s.reject, s.program])

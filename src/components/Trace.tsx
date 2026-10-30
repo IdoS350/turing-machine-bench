@@ -1,6 +1,7 @@
-import type { ReactNode } from 'react'
+import { memo } from 'react'
 import { cx } from '../lib/cx'
 import { formatCount } from '../lib/format'
+import type { Transition } from '../machine/model'
 import type { MachineView } from '../session/MachineSession'
 import { Panel } from './Panel'
 import styles from './Trace.module.css'
@@ -15,23 +16,24 @@ export function Trace({ machine, onJump }: TraceProps) {
     <Panel title="Trace" meta="click a step to rewind to it">
       {machine && (
         <ol className={styles.trace}>
-          {machine.trace.map((t) => (
+          {machine.trace.map((transition, i) => (
             <TraceRow
-              key={t.step}
-              step={t.step}
-              current={t.step === machine.step}
-              line={t.rule.line}
+              key={machine.step - i}
+              step={machine.step - i}
+              transition={transition}
+              current={i === 0}
               onJump={onJump}
-            >
-              ({t.state}, {t.read}) → ({t.write}, {t.move}, {t.next})
-            </TraceRow>
+            />
           ))}
           {machine.hiddenTraceCount > 0 && (
             <li className={styles.more}>… {formatCount(machine.hiddenTraceCount)} earlier steps</li>
           )}
-          <TraceRow step={0} current={machine.step === 0} onJump={onJump}>
-            start in {machine.def.start} at cell 0
-          </TraceRow>
+          <TraceRow
+            step={0}
+            startState={machine.def.start}
+            current={machine.step === 0}
+            onJump={onJump}
+          />
         </ol>
       )}
     </Panel>
@@ -40,24 +42,35 @@ export function Trace({ machine, onJump }: TraceProps) {
 
 interface TraceRowProps {
   step: number
+  /** The step's transition; omitted for the initial configuration. */
+  transition?: Transition
+  startState?: string
   current: boolean
-  line?: number
   onJump: (step: number) => void
-  children: ReactNode
 }
 
-function TraceRow({ step, current, line, onJump, children }: TraceRowProps) {
+const TraceRow = memo(function TraceRow({
+  step,
+  transition: t,
+  startState,
+  current,
+  onJump,
+}: TraceRowProps) {
   return (
-    <li>
+    <li className={styles.item}>
       <button
         type="button"
         className={cx(styles.row, current && styles.current)}
         onClick={() => onJump(step)}
       >
         <span className={styles.step}>{formatCount(step)}</span>
-        <span>{children}</span>
-        <span className={styles.line}>{line !== undefined && `line ${line}`}</span>
+        <span>
+          {t
+            ? `(${t.state}, ${t.read}) → (${t.write}, ${t.move}, ${t.next})`
+            : `start in ${startState} at cell 0`}
+        </span>
+        <span className={styles.line}>{t && `line ${t.rule.line}`}</span>
       </button>
     </li>
   )
-}
+})

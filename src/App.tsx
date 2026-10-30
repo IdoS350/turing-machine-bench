@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import styles from './App.module.css'
 import { Controls } from './components/Controls'
 import { Field } from './components/Field'
@@ -9,20 +9,32 @@ import { Tape } from './components/Tape'
 import { Trace } from './components/Trace'
 import { TransitionTable } from './components/TransitionTable'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
-import { EXAMPLES, type Example } from './machine/examples'
+import type { Example } from './machine/examples'
+import { ruleKey, sourceKey, type ProgramError, type Source } from './machine/model'
 import { compile } from './machine/parser'
 import { MachineSession, SPEEDS } from './session/MachineSession'
 import { useMachineSession } from './session/useMachineSession'
-import { sourceKey, usePersistentSettings, type Settings } from './settings'
+import { usePersistentSettings, type Settings } from './settings'
+
+const NO_ERRORS: readonly ProgramError[] = []
+
+const SHORTCUT_HINT = (
+  <p className={styles.hint}>
+    <kbd>←</kbd> <kbd>→</kbd> step · <kbd>Shift</kbd>+<kbd>←</kbd> <kbd>→</kbd> step by N ·{' '}
+    <kbd>Space</kbd> play/pause · <kbd>R</kbd> reset
+  </p>
+)
 
 export function App() {
   const [settings, setSettings] = usePersistentSettings()
   const { start, accept, reject, program } = settings
-  const compiled = useMemo(
-    () => compile({ start, accept, reject, program }),
+  const source = useMemo(
+    () => ({ start, accept, reject, program }),
     [start, accept, reject, program],
   )
-  const [loadedKey, setLoadedKey] = useState(() => (compiled.ok ? sourceKey(settings) : null))
+  const compiled = useMemo(() => compile(source), [source])
+  const currentKey = useMemo(() => sourceKey(source), [source])
+  const [loadedKey, setLoadedKey] = useState(() => (compiled.ok ? currentKey : null))
   const [session, snapshot] = useMachineSession(
     () =>
       new MachineSession(compiled.ok ? compiled.def : null, settings.input, SPEEDS[settings.speed]),
@@ -30,30 +42,35 @@ export function App() {
   useKeyboardShortcuts(session, settings.stepN)
 
   const { machine } = snapshot
-  const dirty = sourceKey(settings) !== loadedKey
-  const update = (patch: Partial<Settings>) => setSettings((s) => ({ ...s, ...patch }))
+  const dirty = currentKey !== loadedKey
+  const highlight = dirty ? null : machine
+  const nextRule = highlight?.next?.rule
 
-  const apply = (next: Settings) => {
-    const result = compile(next)
-    if (!result.ok) return
-    session.load(result.def, next.input)
-    setLoadedKey(sourceKey(next))
-  }
+  const update = useCallback(
+    (patch: Partial<Settings>) => setSettings((s) => ({ ...s, ...patch })),
+    [setSettings],
+  )
 
-  const loadExample = (example: Example) => {
-    const isPristineExample = EXAMPLES.some((ex) => sourceKey(ex) === sourceKey(settings))
-    if (!isPristineExample && !confirm('Replace your current program with this example?')) return
-    const next: Settings = {
-      ...settings,
-      start: example.start,
-      accept: example.accept,
-      reject: example.reject,
-      program: example.program,
-      input: example.input,
-    }
-    setSettings(next)
-    apply(next)
-  }
+  const loadSource = useCallback(
+    (next: Source, input?: string) => {
+      const result = compile(next)
+      if (!result.ok) return
+      session.load(result.def, input)
+      setLoadedKey(sourceKey(next))
+    },
+    [session],
+  )
+
+  const loadExample = useCallback(
+    (example: Example) => {
+      const { start, accept, reject, program, input } = example
+      update({ start, accept, reject, program, input })
+      loadSource(example, input)
+    },
+    [update, loadSource],
+  )
+
+  const changeProgram = useCallback((program: string) => update({ program }), [update])
 
   return (
     <>
@@ -98,25 +115,23 @@ export function App() {
               session.setRate(SPEEDS[speed])
             }}
           />
-          <p className={styles.hint}>
-            <kbd>←</kbd> <kbd>→</kbd> step · <kbd>Shift</kbd>+<kbd>←</kbd> <kbd>→</kbd> step by N ·{' '}
-            <kbd>Space</kbd> play/pause · <kbd>R</kbd> reset
-          </p>
+          {SHORTCUT_HINT}
         </section>
 
         <ProgramEditor
           className={styles.program}
-          source={settings}
-          errors={compiled.ok ? [] : compiled.errors}
+          source={source}
+          errors={compiled.ok ? NO_ERRORS : compiled.errors}
           dirty={dirty}
           onChange={update}
-          onLoad={() => apply(settings)}
+          onLoad={loadSource}
           onExample={loadExample}
         />
         <TransitionTable
-          source={settings}
-          machine={dirty ? null : machine}
-          onProgramChange={(program) => update({ program })}
+          source={source}
+          currentState={highlight?.state ?? null}
+          nextKey={nextRule ? ruleKey(nextRule.state, nextRule.read) : null}
+          onProgramChange={changeProgram}
         />
         <Trace machine={machine} onJump={session.jumpTo} />
       </main>

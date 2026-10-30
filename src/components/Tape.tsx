@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 import { cx } from '../lib/cx'
 import { BLANK } from '../machine/model'
-import type { MachineView, Motion } from '../session/MachineSession'
+import { TAPE_WINDOW, type MachineView, type Motion } from '../session/MachineSession'
 import styles from './Tape.module.css'
 
 const FALLBACK_CELL_SIZE = 56
@@ -45,9 +45,10 @@ export function Tape({ machine, motion }: TapeProps) {
 
   const cells = []
   if (machine) {
-    const radius = Math.ceil(layout.width / layout.cell / 2) + 2
+    const { from, cells: window } = machine.tape
+    const radius = Math.min(Math.ceil(layout.width / layout.cell / 2) + 2, TAPE_WINDOW)
     for (let i = machine.head - radius; i <= machine.head + radius; i++) {
-      const sym = machine.cells.get(i)
+      const sym = window[i - from]
       const touched = i === motion?.touched
       cells.push(
         <div
