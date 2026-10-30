@@ -1,6 +1,6 @@
-import { formatCount } from '../lib/format'
-import { BLANK } from '../machine/model'
-import type { MachineView } from '../session/MachineSession'
+import { formatCount } from '@/lib/format'
+import { BLANK } from '@/machine/model'
+import type { MachineView } from '@/session/MachineSession'
 import styles from './Readout.module.css'
 
 export function Readout({ machine }: { machine: MachineView | null }) {

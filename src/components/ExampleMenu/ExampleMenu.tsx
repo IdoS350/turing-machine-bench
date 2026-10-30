@@ -1,12 +1,12 @@
 import { AlertDialog } from '@base-ui/react/alert-dialog'
 import { Menu } from '@base-ui/react/menu'
 import { useState } from 'react'
-import { cx } from '../lib/cx'
-import { EXAMPLES, isExampleSource, type Example } from '../machine/examples'
-import type { Source } from '../machine/model'
-import { Button } from './Button'
+import { Button } from '@/components/Button/Button'
+import { cx } from '@/lib/cx'
+import { EXAMPLES, isExampleSource, type Example } from '@/machine/examples'
+import type { Source } from '@/machine/model'
+import popup from '@/styles/popup.module.css'
 import styles from './ExampleMenu.module.css'
-import popup from './Popup.module.css'
 
 interface ExampleMenuProps {
   source: Source

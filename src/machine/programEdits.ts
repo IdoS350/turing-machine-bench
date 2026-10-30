@@ -1,5 +1,5 @@
-import { WILD, ruleKey, type MoveName } from './model'
-import { parseProgram } from './parser'
+import { WILD, ruleKey, type MoveName } from '@/machine/model'
+import { parseProgram } from '@/machine/parser'
 
 export interface RuleFields {
   write: string

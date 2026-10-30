@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { EXAMPLES } from './machine/examples'
-import type { Source } from './machine/model'
-import { SPEEDS } from './session/MachineSession'
+import { EXAMPLES } from '@/machine/examples'
+import type { Source } from '@/machine/model'
+import { SPEEDS } from '@/session/MachineSession'
 
 export interface Settings extends Source {
   input: string

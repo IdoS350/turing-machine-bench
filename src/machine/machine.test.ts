@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { EXAMPLES } from './examples'
-import { createMachine, haltInfo, rewind, run, step } from './machine'
-import type { Machine, Source } from './model'
-import { compile } from './parser'
+import { EXAMPLES } from '@/machine/examples'
+import { createMachine, haltInfo, rewind, run, step } from '@/machine/machine'
+import type { Machine, Source } from '@/machine/model'
+import { compile } from '@/machine/parser'
 
 function load(source: Source, input: string): Machine {
   const result = compile(source)

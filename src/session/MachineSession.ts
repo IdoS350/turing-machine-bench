@@ -8,9 +8,9 @@ import {
   step,
   transitionOf,
   undo,
-} from '../machine/machine'
-import { formatCount } from '../lib/format'
-import type { Halt, Machine, MachineDef, Transition } from '../machine/model'
+} from '@/machine/machine'
+import { formatCount } from '@/lib/format'
+import type { Halt, Machine, MachineDef, Transition } from '@/machine/model'
 
 /** Playback rates in steps per second, selected by index. */
 export const SPEEDS = [1, 2, 4, 8, 15, 30, 60, 250, 1000, 5000] as const

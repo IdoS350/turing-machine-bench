@@ -1,12 +1,12 @@
 import { NumberField } from '@base-ui/react/number-field'
 import { Slider } from '@base-ui/react/slider'
 import { useState } from 'react'
-import { formatCount } from '../lib/format'
-import { SPEEDS, type MachineSession, type SessionSnapshot } from '../session/MachineSession'
-import { Button } from './Button'
+import { Button } from '@/components/Button/Button'
+import { Field } from '@/components/Field/Field'
+import { Hint } from '@/components/Hint/Hint'
+import { formatCount } from '@/lib/format'
+import { SPEEDS, type MachineSession, type SessionSnapshot } from '@/session/MachineSession'
 import styles from './Controls.module.css'
-import { Field } from './Field'
-import { Hint } from './Hint'
 
 const MAX_STEP_N = 1_000_000
 

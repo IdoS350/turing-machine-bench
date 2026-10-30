@@ -1,6 +1,6 @@
 import { Field as BaseField } from '@base-ui/react/field'
 import type { ReactNode } from 'react'
-import { cx } from '../lib/cx'
+import { cx } from '@/lib/cx'
 import styles from './Field.module.css'
 
 interface FieldProps extends Pick<BaseField.Root.Props, 'name' | 'validate'> {

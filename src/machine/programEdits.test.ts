@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { deleteRule, setRule, stateError, symbolError } from './programEdits'
+import { deleteRule, setRule, stateError, symbolError } from '@/machine/programEdits'
 
 const program = `; increment
 right 0 0 R right ; keep going

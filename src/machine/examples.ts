@@ -1,4 +1,4 @@
-import { sourceKey, type Source } from './model'
+import { sourceKey, type Source } from '@/machine/model'
 
 export interface Example extends Source {
   name: string

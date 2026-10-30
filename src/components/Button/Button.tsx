@@ -1,5 +1,5 @@
 import { Button as BaseButton } from '@base-ui/react/button'
-import { cx } from '../lib/cx'
+import { cx } from '@/lib/cx'
 import styles from './Button.module.css'
 
 interface ButtonProps extends Omit<BaseButton.Props, 'className'> {

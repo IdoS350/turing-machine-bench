@@ -1,5 +1,5 @@
 import { useEffect, useState, useSyncExternalStore } from 'react'
-import type { MachineSession } from './MachineSession'
+import type { MachineSession } from '@/session/MachineSession'
 
 export function useMachineSession(create: () => MachineSession) {
   const [session] = useState(create)

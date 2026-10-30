@@ -1,9 +1,9 @@
 import { memo } from 'react'
-import { cx } from '../lib/cx'
-import { formatCount } from '../lib/format'
-import type { Transition } from '../machine/model'
-import type { MachineView } from '../session/MachineSession'
-import { Panel } from './Panel'
+import { Panel } from '@/components/Panel/Panel'
+import { cx } from '@/lib/cx'
+import { formatCount } from '@/lib/format'
+import type { Transition } from '@/machine/model'
+import type { MachineView } from '@/session/MachineSession'
 import styles from './Trace.module.css'
 
 interface TraceProps {

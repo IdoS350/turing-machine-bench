@@ -9,7 +9,7 @@ import {
   type MoveName,
   type Rule,
   type Transition,
-} from './model'
+} from '@/machine/model'
 
 export const moveName = (dir: Direction): MoveName => (dir < 0 ? 'L' : dir > 0 ? 'R' : 'S')
 

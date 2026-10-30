@@ -1,5 +1,5 @@
 import { useEffect, useEffectEvent } from 'react'
-import type { MachineSession } from '../session/MachineSession'
+import type { MachineSession } from '@/session/MachineSession'
 
 const IGNORED_TARGETS =
   'input, textarea, select, [role="dialog"], [role="alertdialog"], [role="menu"]'

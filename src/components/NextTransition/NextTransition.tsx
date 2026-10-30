@@ -1,6 +1,6 @@
-import { cx } from '../lib/cx'
-import { formatCount } from '../lib/format'
-import type { MachineView } from '../session/MachineSession'
+import { cx } from '@/lib/cx'
+import { formatCount } from '@/lib/format'
+import type { MachineView } from '@/session/MachineSession'
 import styles from './NextTransition.module.css'
 
 const VERDICT_LABELS = { accept: 'ACCEPTED', reject: 'REJECTED', halt: 'HALTED' } as const

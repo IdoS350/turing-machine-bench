@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef, useState } from 'react'
-import { cx } from '../lib/cx'
-import { BLANK } from '../machine/model'
-import { TAPE_WINDOW, type MachineView, type Motion } from '../session/MachineSession'
+import { cx } from '@/lib/cx'
+import { BLANK } from '@/machine/model'
+import { TAPE_WINDOW, type MachineView, type Motion } from '@/session/MachineSession'
 import styles from './Tape.module.css'
 
 const FALLBACK_CELL_SIZE = 56

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { compile, draftDef, parseProgram } from './parser'
+import { compile, draftDef, parseProgram } from '@/machine/parser'
 
 const source = (program: string, start = 'q0') => ({ start, accept: '', reject: '', program })
 

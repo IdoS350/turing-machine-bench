@@ -8,7 +8,7 @@ import {
   type ProgramError,
   type Rule,
   type Source,
-} from './model'
+} from '@/machine/model'
 
 const MOVES = new Map<string, Direction>([
   ['L', -1],

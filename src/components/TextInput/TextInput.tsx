@@ -1,6 +1,6 @@
 import { Input } from '@base-ui/react/input'
 import type { Ref } from 'react'
-import { cx } from '../lib/cx'
+import { cx } from '@/lib/cx'
 import styles from './TextInput.module.css'
 
 interface TextInputProps extends Omit<Input.Props, 'className'> {
